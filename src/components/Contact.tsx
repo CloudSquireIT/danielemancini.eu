@@ -1,12 +1,13 @@
 import { contact } from '../data/cv'
 import Reveal from './Reveal'
+import Typewriter from './Typewriter'
 
 export default function Contact() {
   return (
     <footer id="contact" className="footer" data-theme="light" aria-labelledby="contact-title">
-      <Reveal className="footer__inner">
+      <Reveal className="footer__inner" variant="fade">
         <h2 className="footer__title" id="contact-title">
-          Let&rsquo;s connect.
+          <Typewriter text={'Let\u2019s connect.'} />
         </h2>
         <p className="footer__lede">
           Reach out for exciting opportunities or a technical conversation.

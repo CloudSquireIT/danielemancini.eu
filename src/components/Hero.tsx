@@ -1,51 +1,37 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import type { CSSProperties } from 'react'
 import avatar from '../assets/avatar.jpg'
-import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
-import HeroScene from './HeroScene'
 
-function supportsWebGL() {
-  try {
-    const canvas = document.createElement('canvas')
-    return Boolean(canvas.getContext('webgl2') ?? canvas.getContext('webgl'))
-  } catch {
-    return false
-  }
-}
+const delay = (ms: number) => ({ '--delay': `${ms}ms` }) as CSSProperties
 
 export default function Hero() {
-  const reducedMotion = usePrefersReducedMotion()
-  const [showScene, setShowScene] = useState(false)
-
-  useEffect(() => {
-    if (reducedMotion) {
-      setShowScene(false)
-      return
-    }
-    const capable = window.matchMedia('(min-width: 900px) and (pointer: fine)').matches
-    setShowScene(capable && supportsWebGL())
-  }, [reducedMotion])
-
   return (
     <header className="hero">
-      <div className="hero__glow" aria-hidden="true" />
-      {showScene ? <HeroScene /> : null}
+      <div className="hero__bg" aria-hidden="true">
+        <span className="hero__blob hero__blob--a" />
+        <span className="hero__blob hero__blob--b" />
+        <span className="hero__blob hero__blob--c" />
+        <span className="hero__grid" />
+        <span className="hero__beam" />
+      </div>
 
       <div className="hero__inner">
-        <div className="hero__row rise" style={{ '--delay': '60ms' } as CSSProperties}>
-          <img className="hero__avatar" src={avatar} alt="" width={400} height={400} />
+        <div className="hero__row rise" style={delay(60)}>
+          <span className="hero__avatarwrap">
+            <img className="hero__avatar" src={avatar} alt="" width={400} height={400} />
+          </span>
           <h1 className="hero__title">Daniele Mancini</h1>
         </div>
 
-        <p className="hero__role rise" style={{ '--delay': '220ms' } as CSSProperties}>
+        <p className="hero__role rise" style={delay(220)}>
           IT Expert, Classified Systems &amp; VIP IT Support
         </p>
 
-        <p className="hero__mission rise" style={{ '--delay': '380ms' } as CSSProperties}>
+        <p className="hero__mission rise" style={delay(380)}>
           <strong>Computer lover since I was a child.</strong> Devoted to IT and newer technologies,
           for a smarter and more secure digital world.
         </p>
 
-        <div className="hero__hint rise" style={{ '--delay': '560ms' } as CSSProperties}>
+        <div className="hero__hint rise" style={delay(560)}>
           <span className="mouse" aria-hidden="true" />
           <span>Scroll for more</span>
         </div>

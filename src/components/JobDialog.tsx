@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import type { Job } from '../data/cv'
+import { lockPageScroll } from '../lib/scroll'
 
 type JobDialogProps = {
   job: Job
@@ -40,19 +41,18 @@ export default function JobDialog({ job, onClose }: JobDialogProps) {
       }
     }
 
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    lockPageScroll(true)
     document.addEventListener('keydown', onKeyDown)
 
     return () => {
       document.removeEventListener('keydown', onKeyDown)
-      document.body.style.overflow = previousOverflow
+      lockPageScroll(false)
       previouslyFocused?.focus()
     }
   }, [onClose])
 
   return createPortal(
-    <div className="dialog">
+    <div className="dialog" data-lenis-prevent="">
       <button
         type="button"
         className="dialog__backdrop"
@@ -62,22 +62,27 @@ export default function JobDialog({ job, onClose }: JobDialogProps) {
       />
       <div
         className="dialog__sheet"
+        data-lenis-prevent=""
         role="dialog"
         aria-modal="true"
         aria-labelledby="job-dialog-title"
         tabIndex={-1}
         ref={sheetRef}
       >
-        <button type="button" className="dialog__close" onClick={onClose} aria-label="Close">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z" />
-          </svg>
-        </button>
+        <div className="dialog__header">
+          <div className="dialog__heading">
+            <p className="dialog__period">{job.period}</p>
+            <h2 className="dialog__title" id="job-dialog-title">
+              {job.company}
+            </h2>
+          </div>
 
-        <p className="dialog__period">{job.period}</p>
-        <h2 className="dialog__title" id="job-dialog-title">
-          {job.company}
-        </h2>
+          <button type="button" className="dialog__close" onClick={onClose} aria-label="Close">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z" />
+            </svg>
+          </button>
+        </div>
 
         <div className="dialog__body">
           <p>{job.intro}</p>

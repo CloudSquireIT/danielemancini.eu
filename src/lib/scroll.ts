@@ -2,15 +2,55 @@ import { useEffect } from 'react'
 import Lenis from 'lenis'
 
 let instance: Lenis | null = null
+let locks = 0
 
-export function scrollToId(id: string) {
+/** Height the floating pill nav occupies, so unpinned sections land below it. */
+export function navOffset() {
+  return window.matchMedia('(max-width: 640px)').matches ? 88 : 96
+}
+
+export function scrollToY(top: number) {
+  const target = Math.max(0, Math.round(top))
+  if (instance) {
+    instance.scrollTo(target, { duration: 1.05 })
+  } else {
+    window.scrollTo({ top: target, behavior: 'smooth' })
+  }
+}
+
+/**
+ * Scrolls to a section. Pinned sections start their horizontal choreography at
+ * their very top edge, so they are targeted exactly; everything else clears the
+ * floating nav.
+ */
+export function scrollToSection(id: string) {
   const el = document.getElementById(id)
   if (!el) return
-  if (instance) {
-    instance.scrollTo(el, { offset: -88, duration: 1.1 })
-  } else {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  const pinned = el.hasAttribute('data-pin')
+  const top = el.getBoundingClientRect().top + window.scrollY - (pinned ? 0 : navOffset())
+  scrollToY(top)
+}
+
+/** Freezes the page behind the dialog, including Lenis' virtual wheel scroll. */
+export function lockPageScroll(lock: boolean) {
+  const html = document.documentElement
+  locks = Math.max(0, locks + (lock ? 1 : -1))
+
+  if (locks > 0) {
+    instance?.stop()
+    if (!html.dataset.scrollLocked) {
+      const gutter = window.innerWidth - html.clientWidth
+      html.dataset.scrollLocked = 'true'
+      html.style.overflow = 'hidden'
+      if (gutter > 0) document.body.style.paddingRight = `${gutter}px`
+    }
+    return
   }
+
+  delete html.dataset.scrollLocked
+  html.style.overflow = ''
+  document.body.style.paddingRight = ''
+  instance?.start()
 }
 
 /** Smooth wheel scrolling on pointer devices; native scrolling everywhere else. */
@@ -29,6 +69,7 @@ export function useSmoothScroll(enabled: boolean) {
       touchMultiplier: 1.6,
     })
     instance = lenis
+    if (locks > 0) lenis.stop()
 
     let frame = 0
     const loop = (time: number) => {

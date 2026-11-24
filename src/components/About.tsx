@@ -11,7 +11,7 @@ export default function About() {
       aria-labelledby="about-title"
     >
       <div className="section__inner">
-        <Reveal className="section__head">
+        <Reveal className="section__head" variant="title">
           <h2 id="about-title" className="section__title">
             About me
           </h2>
@@ -25,6 +25,7 @@ export default function About() {
               as="article"
               className={`bento${box.wide ? ' bento--wide' : ''}${box.accent ? ` bento--${box.accent}` : ''}`}
               delay={index * 70}
+              variant={index === 0 ? 'up' : index % 2 === 0 ? 'left' : 'right'}
             >
               {box.wide && index === 0 ? (
                 <div className="bento__head">

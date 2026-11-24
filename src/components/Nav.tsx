@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { scrollToId } from '../lib/scroll'
+import { navOffset, scrollToSection } from '../lib/scroll'
 
 const LINKS = [
   { id: 'experience', short: 'Work', long: 'Experience' },
@@ -13,10 +13,11 @@ const LINKS = [
 export default function Nav() {
   const [visible, setVisible] = useState(false)
   const [onLight, setOnLight] = useState(false)
-  const [active, setActive] = useState('experience')
+  const [active, setActive] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
   const indicatorRef = useRef<HTMLSpanElement>(null)
   const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({})
+  const manualRef = useRef<{ id: string; until: number } | null>(null)
 
   useEffect(() => {
     let frame = 0
@@ -25,23 +26,34 @@ export default function Nav() {
       frame = 0
       setVisible(window.scrollY > window.innerHeight * 0.55)
 
-      const probeY = 96
-      const lightSections = document.querySelectorAll<HTMLElement>('[data-theme="light"]')
+      const probeY = navOffset()
       let light = false
-      lightSections.forEach((section) => {
+      document.querySelectorAll<HTMLElement>('[data-theme="light"]').forEach((section) => {
         const rect = section.getBoundingClientRect()
         if (rect.top <= probeY && rect.bottom >= probeY) light = true
       })
       setOnLight(light)
 
-      let current = ''
-      LINKS.forEach(({ id }) => {
+      const manual = manualRef.current
+      if (manual && performance.now() < manual.until) {
+        setActive(manual.id)
+        return
+      }
+      manualRef.current = null
+
+      // Whichever section covers the reading line is the one the page is on.
+      const line = Math.round(window.innerHeight * 0.34)
+      let current: string | null = null
+      for (const { id } of LINKS) {
         const section = document.getElementById(id)
-        if (!section) return
+        if (!section) continue
         const rect = section.getBoundingClientRect()
-        if (rect.top <= 140 && rect.bottom > 140) current = id
-      })
-      if (current) setActive(current)
+        if (rect.top <= line && rect.bottom > line) {
+          current = id
+          break
+        }
+      }
+      setActive(current)
     }
 
     const onScroll = () => {
@@ -59,9 +71,14 @@ export default function Nav() {
   }, [])
 
   const moveIndicator = useCallback(() => {
-    const link = linkRefs.current[active]
+    const link = active ? linkRefs.current[active] : null
     const indicator = indicatorRef.current
-    if (!link || !indicator) return
+    if (!indicator) return
+
+    if (!link) {
+      indicator.style.opacity = '0'
+      return
+    }
 
     indicator.style.width = `${link.offsetWidth}px`
     indicator.style.transform = `translateX(${link.offsetLeft}px)`
@@ -101,8 +118,9 @@ export default function Nav() {
               aria-current={active === link.id ? 'true' : undefined}
               onClick={(event) => {
                 event.preventDefault()
+                manualRef.current = { id: link.id, until: performance.now() + 1200 }
                 setActive(link.id)
-                scrollToId(link.id)
+                scrollToSection(link.id)
               }}
             >
               <span className="nav__long">{link.long}</span>
