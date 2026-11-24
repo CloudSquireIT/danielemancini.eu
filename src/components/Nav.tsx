@@ -91,7 +91,10 @@ export default function Nav() {
 
       const probeY = navProbeY()
       let light = false
-      document.querySelectorAll<HTMLElement>('[data-theme="light"]').forEach((section) => {
+      // The nav element itself carries data-theme, so it must be excluded here:
+      // in bottom-dock mode its rect covers the probe and would lock the pill
+      // to its current theme (it could never morph back to white).
+      document.querySelectorAll<HTMLElement>('[data-theme="light"]:not(.nav)').forEach((section) => {
         const rect = section.getBoundingClientRect()
         if (rect.top <= probeY && rect.bottom >= probeY) light = true
       })
