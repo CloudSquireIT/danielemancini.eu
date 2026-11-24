@@ -1,0 +1,7 @@
+node_modules/
+dist/
+dist-single/
+artifacts/
+.DS_Store
+*.local
+.claude/
