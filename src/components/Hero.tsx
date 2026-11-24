@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 import avatar from '../assets/avatar.jpg'
+import Typewriter from './Typewriter'
 
 const delay = (ms: number) => ({ '--delay': `${ms}ms` }) as CSSProperties
 
@@ -26,9 +27,8 @@ export default function Hero() {
           IT Expert, Classified Systems &amp; VIP IT Support
         </p>
 
-        <p className="hero__mission rise" style={delay(380)}>
-          <strong>Computer lover since I was a child.</strong> Devoted to IT and newer technologies,
-          for a smarter and more secure digital world.
+        <p className="hero__mission" style={delay(380)}>
+          <Typewriter text={'Computer lover since I was a child. Devoted to IT and newer technologies, for a smarter and more secure digital world.'} />
         </p>
 
         <div className="hero__hint rise" style={delay(560)}>

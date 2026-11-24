@@ -1,9 +1,14 @@
 #!/usr/bin/env node
 /**
- * Builds the two release artifacts from an existing build:
+ * Builds the two release artifacts from an existing build and derives their
+ * metadata straight from the files on disk, so the release notes never drift
+ * from what was actually built and uploaded.
  *
- *   artifacts/danielemancini-cv-v0.1.html      self-contained page (CSS + JS + image inlined)
- *   artifacts/danielemancini-cv-v0.1-web.zip   index.html + styles.css + scripts.js
+ *   artifacts/<name>.html        self-contained page (CSS + JS + image inlined)
+ *   artifacts/<name>-web.zip     index.html + styles.css + scripts.js
+ *   artifacts/ASSETS.txt         relative paths to the built artifacts (one per line)
+ *   artifacts/RELEASE-BODY.md    markdown for the GitHub release, generated from the
+ *                                built artifacts + package.json metadata (version, date)
  *
  * Run after `bun run build` and `bun run build:single`, or use `bun run release`.
  */
@@ -17,7 +22,7 @@ import {
   statSync,
   writeFileSync,
 } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)))
@@ -26,7 +31,8 @@ const splitDir = join(root, 'dist')
 const singleDir = join(root, 'dist-single')
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 const version = pkg.version ?? '0.1.0'
-const base = `danielemancini-cv-v${version}`
+const repo = pkg.name ?? 'danielemancini-cv'
+const base = `${repo}-v${version}`
 
 const required = [
   [join(splitDir, 'index.html'), 'dist/index.html'],
@@ -75,8 +81,58 @@ if (external.length > 0) {
 }
 
 const kb = (file) => `${(statSync(file).size / 1024).toFixed(0)} kB`
-writeFileSync(join(artifacts, 'ASSETS.txt'), `${singleOut}\n${zipOut}\n`)
+
+// Paths relative to the repo root, so the release body and any upload tooling can
+// use them without hard-coding absolute filesystem paths.
+const relSingle = relative(root, singleOut)
+const relZip = relative(root, zipOut)
+
+writeFileSync(join(artifacts, 'ASSETS.txt'), `${relSingle}\n${relZip}\n`)
+
+// Build release notes from the real built artifacts, not typed by hand.
+const isoDate = new Date().toISOString().slice(0, 10)
+
+function sha256File(file) {
+  const raw = readFileSync(file)
+  const hash = execFileSync('shasum', ['-a', '256', file], { encoding: 'utf8' }).trim()
+  const first = hash.indexOf(' ')
+  return hash.slice(0, first === -1 ? undefined : first)
+}
+
+const shaSingle = sha256File(singleOut)
+const shaZip = sha256File(zipOut)
+
+const lines = [
+  `# ${base}`,
+  '',
+  `Self-contained single-file HTML (${kb(singleOut)}) and a split web bundle (${kb(zipOut)}) built from the \`${version}\` tag on \`main\`.`,
+  '',
+  '## Artifacts',
+  '',
+  '| Artifact | Size | Path |',
+  '| --- | --- | --- |',
+  `| ${base}.html | ${kb(singleOut)} | \`${relSingle}\` |`,
+  `| ${base}-web.zip | ${kb(zipOut)} | \`${relZip}\` |`,
+  '',
+  '## Checksums (SHA-256)',
+  '',
+  '```',
+  `${shaSingle}  ${relSingle}`,
+  `${shaZip}  ${relZip}`,
+  '```',
+  '',
+  'Download URLs (GitHub Releases):',
+  '',
+  `- \`${base}.html\`: \`https://github.com/CloudSquireIT/danielemancini.eu/releases/download/v${version}/${base}.html\``,
+  `- \`${base}-web.zip\`: \`https://github.com/CloudSquireIT/danielemancini.eu/releases/download/v${version}/${base}-web.zip\``,
+  '',
+  `Built \`${isoDate}\` from the \`v${version}\` tag on \`main\`.`,
+]
+
+writeFileSync(join(artifacts, 'RELEASE-BODY.md'), lines.join('\n') + '\n')
 
 console.log('Release artifacts ready:')
 console.log(`  ${base}.html      ${kb(singleOut)}   self-contained`)
 console.log(`  ${base}-web.zip   ${kb(zipOut)}   index.html + styles.css + scripts.js`)
+console.log(`  ASSETS.txt        relative artifact paths`)
+console.log(`  RELEASE-BODY.md   generated from built artifacts`)

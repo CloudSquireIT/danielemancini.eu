@@ -1,7 +1,7 @@
 {
   "name": "danielemancini-cv",
   "private": true,
-  "version": "0.2.2",
+  "version": "0.3.0",
   "type": "module",
   "description": "Daniele Mancini — CV site (Apple-inspired), React + TypeScript",
   "scripts": {

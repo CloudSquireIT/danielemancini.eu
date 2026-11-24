@@ -17,6 +17,8 @@
   --blue: #0071e3;
   --blue-deep: #0066cc;
   --blue-light: #0a84ff;
+  --blue-apple: #0071e3;
+  --blue-apple-deep: #005e9e;
   --focus: #0a84ff;
   --surface-dark: #0b0b0d;
   --panel-dark: rgba(255, 255, 255, 0.05);
@@ -124,14 +126,14 @@ button {
 /* --------------------------------------------------------------- reveal */
 /* Reversible: `is-visible` is toggled on the way in *and* out, so every block
    closes back up when the page is scrolled the other way. Entrances stagger via
-   --delay; exits leave immediately. */
+   --delay; exits leave immediately. Slower than v0.2.2 for a calmer read. */
 
 .reveal {
   opacity: 0;
   transform: translate3d(0, 26px, 0);
   transition:
-    opacity 1s var(--ease),
-    transform 1.3s var(--ease);
+    opacity 1.25s var(--ease),
+    transform 1.6s var(--ease);
   transition-delay: 0ms;
   will-change: transform, opacity;
 }
@@ -160,9 +162,9 @@ button {
   filter: blur(10px);
   transform: translateY(16px);
   transition:
-    opacity 1s var(--ease),
-    transform 1.3s var(--ease),
-    filter 1.35s var(--ease);
+    opacity 1.25s var(--ease),
+    transform 1.6s var(--ease),
+    filter 1.6s var(--ease);
 }
 
 .reveal--fade {
@@ -179,8 +181,8 @@ button {
   transform: translate3d(0, 30px, 0) scale(0.9);
   transform-origin: 0% 100%;
   transition:
-    opacity 1s var(--ease),
-    transform 1.35s var(--ease);
+    opacity 1.15s var(--ease),
+    transform 1.55s var(--ease);
   transition-delay: 0ms;
 }
 
@@ -197,7 +199,7 @@ button {
 .reveal--title.is-visible .section__title {
   opacity: 1;
   transform: none;
-  transition-delay: calc(var(--delay, 0ms) + 60ms);
+  transition-delay: calc(var(--delay, 0ms) + 70ms);
 }
 
 /* ------------------------------------------------------------------ nav */
@@ -840,6 +842,22 @@ button {
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.5);
 }
 
+.job[data-active='true'] .job__tags {
+  opacity: 1;
+}
+
+.job[data-active='true'] .tag {
+  background: rgba(10, 132, 255, 0.22);
+  border-color: rgba(10, 132, 255, 0.7);
+  box-shadow: 0 8px 22px rgba(10, 132, 255, 0.28);
+}
+
+.job[data-active='true'] .tag:hover {
+  background: rgba(10, 132, 255, 0.32);
+  border-color: rgba(10, 132, 255, 0.9);
+  box-shadow: 0 10px 26px rgba(10, 132, 255, 0.38);
+}
+
 .job__period {
   color: var(--blue-light);
   font-size: 0.78rem;
@@ -872,13 +890,29 @@ button {
 }
 
 .tag {
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.07);
-  color: #c7c7cc;
+  border: 1px solid rgba(10, 132, 255, 0.35);
+  background: rgba(10, 132, 255, 0.14);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: var(--blue-light);
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition:
+    background 0.3s var(--ease),
+    border-color 0.3s var(--ease),
+    box-shadow 0.3s var(--ease),
+    transform 0.3s var(--ease),
+    color 0.3s var(--ease);
+}
+
+.tag:hover {
+  background: rgba(10, 132, 255, 0.22);
+  border-color: rgba(10, 132, 255, 0.6);
+  box-shadow: 0 8px 22px rgba(10, 132, 255, 0.22);
+  transform: translateY(-1px);
 }
 
 .job__foot {
@@ -1153,17 +1187,24 @@ button {
   background: var(--gray-50);
   transition:
     border-color 0.3s var(--ease),
-    box-shadow 0.3s var(--ease);
+    box-shadow 0.3s var(--ease),
+    transform 0.3s var(--ease);
 }
 
 .cert:hover {
-  border-color: var(--gray-200);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.07);
+  border-color: var(--blue-apple);
+  box-shadow: 0 18px 34px rgba(0, 113, 227, 0.14);
+  transform: translateY(-3px);
 }
 
 .cert--featured {
   background: var(--white);
-  border: 2px solid var(--blue);
+  border: 2px solid var(--blue-apple);
+}
+
+.cert--featured:hover {
+  border-color: var(--blue-apple-deep);
+  box-shadow: 0 18px 34px rgba(0, 113, 227, 0.22);
 }
 
 .cert__date {
@@ -1172,13 +1213,23 @@ button {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  transition: color 0.3s var(--ease);
+}
+
+.cert:hover .cert__date {
+  color: var(--blue-apple-deep);
 }
 
 .cert__issuer {
   margin-top: 6px;
-  color: var(--blue-deep);
+  color: var(--blue-apple-deep);
   font-size: 0.85rem;
   font-weight: 600;
+  transition: color 0.3s var(--ease);
+}
+
+.cert:hover .cert__issuer {
+  color: var(--blue);
 }
 
 .cert h3 {
@@ -1188,12 +1239,22 @@ button {
   font-weight: 700;
   line-height: 1.28;
   letter-spacing: -0.02em;
+  transition: color 0.3s var(--ease);
+}
+
+.cert:hover h3 {
+  color: var(--blue-apple-deep);
 }
 
 .cert p {
   color: #515154;
   font-size: 0.95rem;
   line-height: 1.5;
+  transition: color 0.3s var(--ease);
+}
+
+.cert:hover p {
+  color: #3a3a3e;
 }
 
 .cert .icon-btn {
@@ -1225,6 +1286,40 @@ button {
   border-radius: 28px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   background: var(--gray-50);
+  transform-style: preserve-3d;
+  perspective: 720px;
+  will-change: transform;
+  cursor: default;
+}
+
+.bento.parallax {
+  transition: transform 0.08s linear, box-shadow 0.25s var(--ease), border-color 0.25s var(--ease);
+}
+
+.bento.parallax::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    120% 120% at var(--px, 50%) var(--py, 40%),
+    rgba(10, 132, 255, 0.10),
+    rgba(10, 132, 255, 0) 60%
+  );
+  opacity: var(--glow, 0);
+  transition: opacity 0.25s var(--ease);
+  pointer-events: none;
+}
+
+.bento.parallax::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(10, 132, 255, 0.18);
+  opacity: var(--rim, 0);
+  transition: opacity 0.25s var(--ease);
+  pointer-events: none;
 }
 
 .bento--wide {
@@ -1736,10 +1831,41 @@ button {
     opacity: 0.95;
     filter: none;
   }
+
+  .bento.parallax {
+    transform: none;
+  }
 }
 
 /* ------------------------------------------------------------ responsive */
 
+/* Tablets (and phones) show icons instead of labels in the nav pill. The phone
+   block already swaps them at 640px; repeat it at 1024px so tablets keep the
+   pill compact instead of letting the labels run wide. Names still live in the
+   aria-labels from Nav.tsx, so text is never lost from the accessibility tree. */
+@media (max-width: 1024px) {
+  .nav__link {
+    min-width: 44px;
+    justify-content: center;
+    padding: 0 9px;
+  }
+
+  .nav__list {
+    gap: 0;
+  }
+
+  .nav__icon {
+    display: block;
+  }
+
+  .nav__long {
+    display: none;
+  }
+}
+
+/* Re-assert the phone-specific sizing so it wins over the tablet block on small
+   screens. On phones the nav pill is already icon-only above; this is the part
+   that tightens targets and card sizes under 640px. */
 @media (max-width: 900px) {
   .edu-grid {
     grid-template-columns: 1fr;
@@ -1843,6 +1969,19 @@ button {
 
   .pin .cert {
     padding: 22px;
+  }
+
+  /* Tablets keep the pill but swap the labels for icons, the same way phones do.
+     Up to 1024px the six labels need too much width; six icons fit comfortably
+     and keep the row inside the pill even once a scrollbar eats into the viewport. */
+  .nav__link {
+    min-width: 44px;
+    justify-content: center;
+    padding: 0 9px;
+  }
+
+  .nav__list {
+    gap: 0;
   }
 }
 
