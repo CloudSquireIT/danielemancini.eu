@@ -24,6 +24,13 @@
   --hairline-light: rgba(0, 0, 0, 0.1);
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --nav-h: 96px;
+  /* Which edge the pill docks to. The stylesheet is the only place that decides
+     it; scroll.ts reads this back, so the layout and the JS cannot drift apart. */
+  --nav-dock: top;
+  /* Room reserved under content for the pill when it sits at the bottom edge:
+     none while it floats at the top, --nav-clear-base while it is docked. */
+  --nav-clear-base: 76px;
+  --nav-clear: 0px;
   color-scheme: dark;
 }
 
@@ -304,8 +311,13 @@ button {
   color: var(--white);
 }
 
-.nav__short {
+/* Drawn with currentColor so both pill themes work without extra assets.
+   Phones show these in place of the labels (see the 640px block). */
+.nav__icon {
   display: none;
+  flex: none;
+  width: 18px;
+  height: 18px;
 }
 
 .nav[data-theme='light'] .nav__link {
@@ -1747,17 +1759,28 @@ button {
     --nav-h: 88px;
   }
 
+  /* Phones swap the labels for icons: six labels need ~360px, six icons fit in
+     ~290px, so the pill keeps clear of the edges on a 320px screen. Each link
+     keeps a 44px target, and its name comes from aria-label in Nav.tsx — text
+     clipped out here would be pruned from the accessibility tree with it. */
   .nav__link {
-    padding: 0 12px;
-    font-size: 0.8125rem;
+    min-width: 44px;
+    justify-content: center;
+    padding: 0 9px;
+  }
+
+  /* No gaps at icon size: it keeps the row inside the pill's max-width even
+     when a scrollbar eats into a 320px viewport, so it never has to scroll. */
+  .nav__list {
+    gap: 0;
+  }
+
+  .nav__icon {
+    display: block;
   }
 
   .nav__long {
     display: none;
-  }
-
-  .nav__short {
-    display: inline;
   }
 
   .bento-grid {
@@ -1823,6 +1846,73 @@ button {
   }
 }
 
+/* Touch devices and narrow windows put the pill at the bottom edge, so nothing
+   hangs over the top of the page and every section ending in that corner keeps
+   room for it — including the pinned rails, whose cards must clear the bar.
+   This query is the one and only definition of "the pill docks at the bottom":
+   it publishes the answer as --nav-dock, which scroll.ts reads, and the
+   matching --nav-clear reservation. Narrow windows dock it whatever the
+   pointer; touch screens dock it up to 1400px, where the top corners would
+   otherwise sit too far from the thumbs holding the device. */
+@media (max-width: 1180px), (pointer: coarse) and (max-width: 1400px) {
+  :root {
+    --nav-h: 0px;
+    --nav-dock: bottom;
+    --nav-clear: calc(var(--nav-clear-base) + env(safe-area-inset-bottom));
+  }
+
+  .nav {
+    top: auto;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    padding-inline: 10px;
+    transform: translateY(14px);
+  }
+
+  .nav[data-visible='true'] {
+    transform: none;
+  }
+
+  .nav__pill {
+    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.18);
+  }
+
+  .section {
+    padding-bottom: calc(clamp(64px, 9vw, 112px) + var(--nav-clear));
+  }
+
+  .footer {
+    padding-bottom: calc(40px + var(--nav-clear));
+  }
+
+  .pin__sticky {
+    padding: 16px clamp(16px, 4vw, 40px) calc(16px + var(--nav-clear));
+  }
+}
+
+/* Shorter phones (SE, Duo folded, iPhone 8) need the bar but cannot spare a
+   whole card's height for it. The reservation follows from --nav-clear-base, so
+   it needs no copy of the dock condition; only the type below repeats it, and a
+   drift there would change sizes, never which edge the pill sits on. */
+@media (max-height: 700px) {
+  :root {
+    --nav-clear-base: 68px;
+  }
+}
+
+@media (max-height: 700px) and (max-width: 1180px),
+  (max-height: 700px) and (pointer: coarse) and (max-width: 1400px) {
+
+  .nav__link {
+    min-height: 40px;
+    padding: 0 11px;
+    font-size: 0.8125rem;
+  }
+
+  .pin__sticky {
+    padding-top: 12px;
+  }
+}
+
 @media (max-height: 730px) {
   .pin__body {
     margin-top: 10px;
@@ -1841,6 +1931,76 @@ button {
 
   .pin .job__tags {
     margin-top: 10px;
+  }
+}
+
+/* iPhone SE (1st gen) and other 568px-tall screens: the rail, its bar and the
+   pill have to share 568px, so the head gives up its lede and the card tightens. */
+@media (max-height: 620px) {
+  .pin__sticky {
+    padding-top: 10px;
+  }
+
+  .pin .section__head {
+    max-width: none;
+  }
+
+  .pin .section__lede {
+    display: none;
+  }
+
+  .pin .section__title {
+    font-size: clamp(1.35rem, 6vw, 1.75rem);
+  }
+
+  .pin__body {
+    margin-top: 6px;
+  }
+
+  .carousel__bar {
+    margin-bottom: 10px;
+    gap: 10px;
+  }
+
+  .pin .job,
+  .pin .cert {
+    padding: 13px 15px;
+  }
+
+  .pin .job__period,
+  .pin .cert__issuer {
+    font-size: 0.68rem;
+  }
+
+  .pin .job__company {
+    font-size: 1.05rem;
+  }
+
+  .pin .job__summary,
+  .pin .cert p {
+    margin-top: 5px;
+    font-size: 0.82rem;
+    line-height: 1.36;
+  }
+
+  .pin .job__tags {
+    margin-top: 7px;
+    gap: 5px;
+  }
+
+  .pin .tag {
+    padding: 3px 8px;
+    font-size: 0.66rem;
+  }
+
+  .pin .job__foot {
+    margin-top: 2px;
+  }
+
+  .pin .btn {
+    min-height: 38px;
+    padding: 0 12px;
+    font-size: 0.8rem;
   }
 }
 

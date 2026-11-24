@@ -10,6 +10,9 @@ type TrackMetrics = {
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
 
+/** Below this viewport height the pin cannot frame a card, so it stays a rail. */
+const SHORT_VIEWPORT = 460
+
 /**
  * Drives a carousel from the page scroll: the section pins for one viewport plus
  * the width the cards overflow by, and vertical scrolling translates the track
@@ -27,10 +30,15 @@ export function usePinnedTrack(reducedMotion: boolean) {
   const [active, setActive] = useState(0)
   const [atStart, setAtStart] = useState(true)
   const [atEnd, setAtEnd] = useState(false)
+  const [shortViewport, setShortViewport] = useState(
+    () => typeof window !== 'undefined' && window.innerHeight < SHORT_VIEWPORT,
+  )
 
   const activeRef = useRef(0)
   const metrics = useRef<TrackMetrics>({ distance: 0, offsets: [], widths: [], count: 0 })
-  const pinned = !reducedMotion
+  // A landscape phone has no room for a card plus a pinned viewport, so it gets
+  // the native horizontal rail instead — same as reduced motion.
+  const pinned = !reducedMotion && !shortViewport
 
   const setIndex = useCallback((index: number) => {
     if (index === activeRef.current) return
@@ -168,6 +176,12 @@ export function usePinnedTrack(reducedMotion: boolean) {
     setAtStart(max <= 4 || track.scrollLeft <= 4)
     setAtEnd(max <= 4 || track.scrollLeft >= max - 4)
   }, [pinned, setIndex])
+
+  useEffect(() => {
+    const onResize = () => setShortViewport(window.innerHeight < SHORT_VIEWPORT)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
 
   useEffect(() => {
     const section = sectionRef.current

@@ -4,9 +4,27 @@ import Lenis from 'lenis'
 let instance: Lenis | null = null
 let locks = 0
 
+/**
+ * Phones and tablets park the pill along the bottom edge instead of the top.
+ * The stylesheet owns that breakpoint and publishes the outcome as --nav-dock,
+ * so this reads the CSS rather than repeating the media query: the pill cannot
+ * sit in one place for the layout and another for the scroll logic.
+ */
+export function navAtBottom() {
+  if (typeof window === 'undefined') return false
+  const dock = getComputedStyle(document.documentElement).getPropertyValue('--nav-dock')
+  return dock.trim() === 'bottom'
+}
+
 /** Height the floating pill nav occupies, so unpinned sections land below it. */
 export function navOffset() {
+  if (navAtBottom()) return 0
   return window.matchMedia('(max-width: 640px)').matches ? 88 : 96
+}
+
+/** Where the pill's tint is sampled — under the pill itself, wherever it sits. */
+export function navProbeY() {
+  return navAtBottom() ? window.innerHeight - 34 : navOffset()
 }
 
 export function scrollToY(top: number) {
