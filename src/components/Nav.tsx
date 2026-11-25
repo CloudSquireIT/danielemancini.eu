@@ -90,6 +90,9 @@ export default function Nav() {
 
   useEffect(() => {
     let frame = 0
+    // Android still reads theme-color for its toolbar; iOS 26 ignores it and
+    // samples .edge-tint instead, so both stay in sync with the same probe.
+    const themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
 
     const measure = () => {
       frame = 0
@@ -105,6 +108,11 @@ export default function Nav() {
         if (rect.top <= probeY && rect.bottom >= probeY) light = true
       })
       setOnLight(light)
+
+      if (themeMeta) {
+        const colour = light ? '#ffffff' : '#000000'
+        if (themeMeta.content !== colour) themeMeta.content = colour
+      }
 
       const manual = manualRef.current
       if (manual && performance.now() < manual.until) {
@@ -172,52 +180,57 @@ export default function Nav() {
   }, [moveIndicator, t])
 
   return (
-    <nav
-      className="nav"
-      data-visible={visible}
-      data-theme={onLight ? 'light' : 'dark'}
-      aria-label={t.nav.sections}
-    >
-      <div className="nav__pill">
-        <div className="nav__list" ref={listRef}>
-          <span className="nav__indicator" ref={indicatorRef} aria-hidden="true" />
-          {LINKS.map((link) => (
-            <a
-              key={link.id}
-              href={`#${link.id}`}
-              className="nav__link"
-              ref={(node) => {
-                linkRefs.current[link.id] = node
-              }}
-              aria-label={t.nav[link.label]}
-              aria-current={active === link.id ? 'true' : undefined}
-              onClick={(event) => {
-                event.preventDefault()
-                manualRef.current = { id: link.id, until: performance.now() + 1200 }
-                setActive(link.id)
-                scrollToSection(link.id)
-              }}
-            >
-              <svg
-                className="nav__icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.7}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-                focusable="false"
+    <>
+      {/* The iOS 26 bar tint (see the docked block in styles.css): it has to be
+          a fixed element at the edge, so it cannot live inside the pill. */}
+      <div className="edge-tint" data-tint={onLight ? 'light' : 'dark'} aria-hidden="true" />
+      <nav
+        className="nav"
+        data-visible={visible}
+        data-theme={onLight ? 'light' : 'dark'}
+        aria-label={t.nav.sections}
+      >
+        <div className="nav__pill">
+          <div className="nav__list" ref={listRef}>
+            <span className="nav__indicator" ref={indicatorRef} aria-hidden="true" />
+            {LINKS.map((link) => (
+              <a
+                key={link.id}
+                href={`#${link.id}`}
+                className="nav__link"
+                ref={(node) => {
+                  linkRefs.current[link.id] = node
+                }}
+                aria-label={t.nav[link.label]}
+                aria-current={active === link.id ? 'true' : undefined}
+                onClick={(event) => {
+                  event.preventDefault()
+                  manualRef.current = { id: link.id, until: performance.now() + 1200 }
+                  setActive(link.id)
+                  scrollToSection(link.id)
+                }}
               >
-                {link.icon}
-              </svg>
-              <span className="nav__long">{t.nav[link.label]}</span>
-            </a>
-          ))}
-        </div>
+                <svg
+                  className="nav__icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.7}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  {link.icon}
+                </svg>
+                <span className="nav__long">{t.nav[link.label]}</span>
+              </a>
+            ))}
+          </div>
 
-        <LanguageSwitch />
-      </div>
-    </nav>
+          <LanguageSwitch />
+        </div>
+      </nav>
+    </>
   )
 }

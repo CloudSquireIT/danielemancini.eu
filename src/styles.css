@@ -51,6 +51,9 @@ html {
   scroll-behavior: auto;
   -webkit-text-size-adjust: 100%;
   overflow-x: clip;
+  /* Explicit: ios Safari falls back to the page background where no content
+     sits under its bars, and the hero is black before anything paints. */
+  background: var(--black);
 }
 
 body {
@@ -2315,6 +2318,12 @@ button {
   }
 }
 
+/* The iOS 26 bar tint only exists where the pill docks; hidden elsewhere so it
+   can never paint a band across a wider window. */
+.edge-tint {
+  display: none;
+}
+
 /* Touch devices and narrow windows put the pill at the bottom edge, so nothing
    hangs over the top of the page and every section ending in that corner keeps
    room for it — including the pinned rails, whose cards must clear the bar.
@@ -2335,6 +2344,28 @@ button {
     bottom: max(10px, env(safe-area-inset-bottom));
     padding-inline: 10px;
     transform: translateY(14px);
+  }
+
+  /* Safari 26 drops theme-color and tints its bottom bar from a fixed, opaque
+     element at the edge: it hit-tests the centre 4px inside, and wants 90% of
+     the width and more than 10px of depth. This strip is that element, and it
+     follows the section under the pill - black over a dark section, white over
+     a light one - so the bar matches the page as you scroll. It sits in the
+     space the sections already reserve for the docked pill. */
+  .edge-tint {
+    display: block;
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 1;
+    height: calc(16px + env(safe-area-inset-bottom));
+    background: var(--black);
+    pointer-events: none;
+    transition: background 0.7s var(--ease-soft);
+  }
+
+  .edge-tint[data-tint='light'] {
+    background: var(--white);
   }
 
   .nav[data-visible='true'] {
