@@ -1,10 +1,15 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useLang } from '../lib/i18n'
 import { navAtBottom, navProbeY, scrollToSection } from '../lib/scroll'
+import LanguageSwitch from './LanguageSwitch'
+
+type NavKey = 'experience' | 'education' | 'skills' | 'certifications' | 'about' | 'contact'
 
 type SectionLink = {
   id: string
-  /** Also the link's accessible name: phones show the icon alone. */
-  long: string
+  /** Key into the locale's nav copy: also the link's accessible name, since
+   * phones show the icon alone. */
+  label: NavKey
   /** Drawn with currentColor, so it follows the pill's light and dark themes. */
   icon: ReactNode
 }
@@ -12,7 +17,7 @@ type SectionLink = {
 const LINKS: SectionLink[] = [
   {
     id: 'experience',
-    long: 'Experience',
+    label: 'experience',
     icon: (
       <>
         <rect x="2" y="7" width="20" height="14" rx="2" />
@@ -22,7 +27,7 @@ const LINKS: SectionLink[] = [
   },
   {
     id: 'education',
-    long: 'Education',
+    label: 'education',
     icon: (
       <>
         <path d="M21.4 10.9a1 1 0 0 0 0-1.8L12.8 5.2a2 2 0 0 0-1.7 0L2.6 9.1a1 1 0 0 0 0 1.8l8.6 3.9a2 2 0 0 0 1.7 0z" />
@@ -33,7 +38,7 @@ const LINKS: SectionLink[] = [
   },
   {
     id: 'skills',
-    long: 'Skills',
+    label: 'skills',
     icon: (
       <>
         <path d="M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3" />
@@ -43,7 +48,7 @@ const LINKS: SectionLink[] = [
   },
   {
     id: 'certifications',
-    long: 'Certifications',
+    label: 'certifications',
     icon: (
       <>
         <circle cx="12" cy="8" r="6" />
@@ -53,7 +58,7 @@ const LINKS: SectionLink[] = [
   },
   {
     id: 'about',
-    long: 'About',
+    label: 'about',
     icon: (
       <>
         <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
@@ -63,7 +68,7 @@ const LINKS: SectionLink[] = [
   },
   {
     id: 'contact',
-    long: 'Contact',
+    label: 'contact',
     icon: (
       <>
         <rect x="2" y="4" width="20" height="16" rx="2" />
@@ -74,6 +79,7 @@ const LINKS: SectionLink[] = [
 ]
 
 export default function Nav() {
+  const { t } = useLang()
   const [visible, setVisible] = useState(false)
   const [onLight, setOnLight] = useState(false)
   const [active, setActive] = useState<string | null>(null)
@@ -162,14 +168,15 @@ export default function Nav() {
     moveIndicator()
     window.addEventListener('resize', moveIndicator)
     return () => window.removeEventListener('resize', moveIndicator)
-  }, [moveIndicator])
+    // Changing language rewrites the labels, so the indicator is re-measured.
+  }, [moveIndicator, t])
 
   return (
     <nav
       className="nav"
       data-visible={visible}
       data-theme={onLight ? 'light' : 'dark'}
-      aria-label="Sections"
+      aria-label={t.nav.sections}
     >
       <div className="nav__pill">
         <div className="nav__list" ref={listRef}>
@@ -182,7 +189,7 @@ export default function Nav() {
               ref={(node) => {
                 linkRefs.current[link.id] = node
               }}
-              aria-label={link.long}
+              aria-label={t.nav[link.label]}
               aria-current={active === link.id ? 'true' : undefined}
               onClick={(event) => {
                 event.preventDefault()
@@ -204,10 +211,12 @@ export default function Nav() {
               >
                 {link.icon}
               </svg>
-              <span className="nav__long">{link.long}</span>
+              <span className="nav__long">{t.nav[link.label]}</span>
             </a>
           ))}
         </div>
+
+        <LanguageSwitch />
       </div>
     </nav>
   )

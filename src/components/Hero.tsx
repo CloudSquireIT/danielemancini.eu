@@ -1,10 +1,13 @@
 import type { CSSProperties } from 'react'
 import avatar from '../assets/avatar.jpg'
+import { useLang } from '../lib/i18n'
 import Typewriter from './Typewriter'
 
 const delay = (ms: number) => ({ '--delay': `${ms}ms` }) as CSSProperties
 
 export default function Hero() {
+  const { t } = useLang()
+
   return (
     <header className="hero">
       <div className="hero__bg" aria-hidden="true">
@@ -24,16 +27,16 @@ export default function Hero() {
         </div>
 
         <p className="hero__role rise" style={delay(220)}>
-          IT Expert, Classified Systems &amp; VIP IT Support
+          {t.hero.role}
         </p>
 
         <p className="hero__mission" style={delay(380)}>
-          <Typewriter text={'Computer lover since I was a child. Devoted to IT and newer technologies, for a smarter and more secure digital world.'} />
+          <Typewriter text={t.hero.mission} />
         </p>
 
         <div className="hero__hint rise" style={delay(560)}>
           <span className="mouse" aria-hidden="true" />
-          <span>Scroll for more</span>
+          <span>{t.hero.scroll}</span>
         </div>
       </div>
     </header>

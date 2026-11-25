@@ -1,20 +1,22 @@
-import { education } from '../data/cv'
+import { useLang } from '../lib/i18n'
 import Reveal from './Reveal'
 
 const DIRECTIONS = ['left', 'right'] as const
 
 export default function Education() {
+  const { locale, t } = useLang()
+
   return (
     <section id="education" className="section section--dark" aria-labelledby="education-title">
       <div className="section__inner">
         <Reveal className="section__head" variant="title">
           <h2 id="education-title" className="section__title">
-            Education
+            {t.education.title}
           </h2>
         </Reveal>
 
         <div className="edu-grid">
-          {education.map((entry, index) => (
+          {locale.education.map((entry, index) => (
             <Reveal
               key={entry.title}
               as="article"

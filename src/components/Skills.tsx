@@ -1,19 +1,21 @@
 import type { CSSProperties } from 'react'
-import { languages, skillRows } from '../data/cv'
+import { useLang } from '../lib/i18n'
 import Reveal from './Reveal'
 
 export default function Skills() {
+  const { locale, t } = useLang()
+
   return (
     <section id="skills" className="section section--tint" aria-labelledby="skills-title">
       <div className="section__inner">
         <Reveal className="section__head" variant="title">
           <h2 id="skills-title" className="section__title">
-            Technical skills
+            {t.skills.title}
           </h2>
-          <p className="section__lede">Enterprise-grade tools, systems and technical capabilities.</p>
+          <p className="section__lede">{t.skills.lede}</p>
         </Reveal>
 
-        {skillRows.map((row, rowIndex) => (
+        {locale.skillRows.map((row, rowIndex) => (
           <Reveal
             key={rowIndex}
             className={`marquee${rowIndex === 1 ? ' marquee--reverse' : ''}`}
@@ -41,13 +43,13 @@ export default function Skills() {
 
         <Reveal className="section__head" delay={60} variant="title">
           <h2 className="section__title" style={{ marginTop: 'clamp(40px, 6vw, 64px)' }}>
-            Language proficiency
+            {t.skills.languagesTitle}
           </h2>
-          <p className="section__lede">International multilingual communication.</p>
+          <p className="section__lede">{t.skills.languagesLede}</p>
         </Reveal>
 
         <div className="lang-grid">
-          {languages.map((language, index) => (
+          {locale.languages.map((language, index) => (
             <Reveal
               key={language.name}
               className="lang"
@@ -64,7 +66,7 @@ export default function Skills() {
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-valuenow={language.value}
-                aria-label={`${language.name} proficiency`}
+                aria-label={`${language.name} ${t.skills.proficiency}`}
               >
                 <div
                   className="lang__fill"

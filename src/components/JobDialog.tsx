@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import type { Job } from '../data/cv'
+import { useLang } from '../lib/i18n'
 import { lockPageScroll } from '../lib/scroll'
 
 type JobDialogProps = {
@@ -9,6 +10,7 @@ type JobDialogProps = {
 }
 
 export default function JobDialog({ job, onClose }: JobDialogProps) {
+  const { t } = useLang()
   const sheetRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -56,7 +58,7 @@ export default function JobDialog({ job, onClose }: JobDialogProps) {
       <button
         type="button"
         className="dialog__backdrop"
-        aria-label="Close role details"
+        aria-label={t.dialog.closeDetails}
         tabIndex={-1}
         onClick={onClose}
       />
@@ -77,7 +79,7 @@ export default function JobDialog({ job, onClose }: JobDialogProps) {
             </h2>
           </div>
 
-          <button type="button" className="dialog__close" onClick={onClose} aria-label="Close">
+          <button type="button" className="dialog__close" onClick={onClose} aria-label={t.dialog.close}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z" />
             </svg>

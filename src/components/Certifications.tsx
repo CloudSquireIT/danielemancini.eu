@@ -1,9 +1,10 @@
-import { certifications } from '../data/cv'
 import { usePinnedTrack } from '../hooks/usePinnedTrack'
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
+import { useLang } from '../lib/i18n'
 import Reveal from './Reveal'
 
 export default function Certifications() {
+  const { locale, t } = useLang()
   const reducedMotion = usePrefersReducedMotion()
   const { sectionRef, stickyRef, trackRef, pinned, active, atStart, atEnd, page, onFocusCard, onTrackScroll } =
     usePinnedTrack(reducedMotion)
@@ -22,11 +23,9 @@ export default function Certifications() {
         <div className="section__inner">
           <Reveal className="section__head" variant="title">
             <h2 id="certifications-title" className="section__title">
-              Certifications
+              {t.certifications.title}
             </h2>
-            <p className="section__lede">
-              Recognised standards and continuous learning, from ITIL to NATO cyber defence.
-            </p>
+            <p className="section__lede">{t.certifications.lede}</p>
           </Reveal>
 
           <Reveal className="pin__body" delay={60} variant="fade">
@@ -37,7 +36,7 @@ export default function Certifications() {
                   className="icon-btn icon-btn--light"
                   onClick={() => page(-1)}
                   disabled={atStart}
-                  aria-label="Previous certifications"
+                  aria-label={t.certifications.prev}
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z" />
@@ -48,7 +47,7 @@ export default function Certifications() {
                   className="icon-btn icon-btn--light"
                   onClick={() => page(1)}
                   disabled={atEnd}
-                  aria-label="Next certifications"
+                  aria-label={t.certifications.next}
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M8.6 16.6 10 18l6-6-6-6-1.4 1.4L13.2 12z" />
@@ -68,9 +67,9 @@ export default function Certifications() {
               ref={trackRef}
               onScroll={onTrackScroll}
               onFocusCapture={onFocusCard}
-              aria-label="Certifications, newest first"
+              aria-label={t.certifications.track}
             >
-              {certifications.map((certification, index) => (
+              {locale.certifications.map((certification, index) => (
                 <li
                   className={`cert${certification.featured ? ' cert--featured' : ''}`}
                   key={certification.title}

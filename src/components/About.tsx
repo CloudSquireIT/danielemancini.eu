@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback, type ReactNode } from 'react'
 import avatar from '../assets/avatar.jpg'
-import { ethos } from '../data/cv'
+import { useLang } from '../lib/i18n'
 
 function clampDegree(value: number | null, min: number, max: number) {
   if (value === null) return 0
@@ -161,6 +161,7 @@ function useCallbackRef(callback: (node: HTMLDivElement | null) => void) {
 }
 
 export default function About() {
+  const { locale, t } = useLang()
   const cardRefs = useRef<Array<HTMLDivElement | null>>([])
   const pointerTilt = useRef({ x: 0, y: 0 })
   const pointerActive = useRef(false)
@@ -249,13 +250,13 @@ export default function About() {
           }}
         >
           <h2 id="about-title" className="section__title">
-            About me
+            {t.about.title}
           </h2>
-          <p className="section__lede">How I work, and where that comes from.</p>
+          <p className="section__lede">{t.about.lede}</p>
         </RevealCard>
 
         <div className="bento-grid">
-          {ethos.map((box, index) => (
+          {locale.ethos.map((box, index) => (
             <RevealCard
               key={box.title}
               ref={(node) => {

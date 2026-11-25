@@ -1,18 +1,19 @@
 import { useState } from 'react'
-import { jobs } from '../data/cv'
 import { usePinnedTrack } from '../hooks/usePinnedTrack'
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
+import { useLang } from '../lib/i18n'
 import JobDialog from './JobDialog'
 import Reveal from './Reveal'
 
-const MILESTONES = [
-  { label: 'Now', left: '0%' },
-  { label: '2021', left: '33.33%' },
-  { label: '2020', left: '66.66%' },
-  { label: '2019', left: '100%' },
-]
-
 export default function Experience() {
+  const { locale, t } = useLang()
+  const jobs = locale.jobs
+  const milestones = [
+    { label: t.experience.now, left: '0%' },
+    { label: '2021', left: '33.33%' },
+    { label: '2020', left: '66.66%' },
+    { label: '2019', left: '100%' },
+  ]
   const reducedMotion = usePrefersReducedMotion()
   const { sectionRef, stickyRef, trackRef, pinned, active, atStart, atEnd, page, onFocusCard, onTrackScroll } =
     usePinnedTrack(reducedMotion)
@@ -32,11 +33,9 @@ export default function Experience() {
         <div className="section__inner">
           <Reveal className="section__head" variant="title">
             <h2 id="experience-title" className="section__title">
-              Work experience
+              {t.experience.title}
             </h2>
-            <p className="section__lede">
-              Six years across enterprise support, classified systems and parliamentary IT.
-            </p>
+            <p className="section__lede">{t.experience.lede}</p>
           </Reveal>
 
           <Reveal className="pin__body" delay={80} variant="fade">
@@ -47,7 +46,7 @@ export default function Experience() {
                   className="icon-btn"
                   onClick={() => page(-1)}
                   disabled={atStart}
-                  aria-label="Previous role"
+                  aria-label={t.experience.prev}
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z" />
@@ -58,7 +57,7 @@ export default function Experience() {
                   className="icon-btn"
                   onClick={() => page(1)}
                   disabled={atEnd}
-                  aria-label="Next role"
+                  aria-label={t.experience.next}
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M8.6 16.6 10 18l6-6-6-6-1.4 1.4L13.2 12z" />
@@ -71,7 +70,7 @@ export default function Experience() {
                   <span className="rail__fill" />
                 </div>
                 <div className="rail__marks" aria-hidden="true">
-                  {MILESTONES.map((milestone) => (
+                  {milestones.map((milestone) => (
                     <span
                       key={milestone.label}
                       className="rail__mark"
@@ -89,7 +88,7 @@ export default function Experience() {
               ref={trackRef}
               onScroll={onTrackScroll}
               onFocusCapture={onFocusCard}
-              aria-label="Roles, in reverse chronological order"
+              aria-label={t.experience.track}
             >
               {jobs.map((job, index) => (
                 <li className="job" key={job.id} data-active={active === index}>
@@ -113,7 +112,7 @@ export default function Experience() {
                       onClick={() => setOpenJobId(job.id)}
                       aria-haspopup="dialog"
                     >
-                      Details
+                      {t.experience.details}
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M9.4 6 8 7.4l4.6 4.6L8 16.6 9.4 18l6-6z" />
                       </svg>

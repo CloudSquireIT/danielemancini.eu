@@ -1,17 +1,21 @@
+import { useState } from 'react'
 import { contact } from '../data/cv'
+import { useLang } from '../lib/i18n'
+import PrivacyDialog from './PrivacyDialog'
 import Reveal from './Reveal'
 import Typewriter from './Typewriter'
 
 export default function Contact() {
+  const { t } = useLang()
+  const [privacyOpen, setPrivacyOpen] = useState(false)
+
   return (
     <footer id="contact" className="footer" data-theme="light" aria-labelledby="contact-title">
       <Reveal className="footer__inner" variant="fade">
         <h2 className="footer__title" id="contact-title">
-          <Typewriter text={'Let\u2019s connect.'} />
+          <Typewriter text={t.footer.title} />
         </h2>
-        <p className="footer__lede">
-          Reach out for exciting opportunities or a technical conversation.
-        </p>
+        <p className="footer__lede">{t.footer.lede}</p>
 
         <div className="footer__actions">
           <a className="btn btn--primary" href={`mailto:${contact.email}`}>
@@ -37,18 +41,28 @@ export default function Contact() {
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M19 8H5a3 3 0 0 0-3 3v6h4v4h12v-4h4v-6a3 3 0 0 0-3-3zm-3 11H8v-5h8v5zm3-7a1 1 0 1 1 0-2 1 1 0 0 1 0 2zM18 3H6v4h12V3z" />
             </svg>
-            Save CV as PDF
+            {t.footer.print}
           </button>
         </div>
 
         <p id="print-hint" className="footer__lede" style={{ marginTop: '18px', fontSize: '0.85rem' }}>
-          Opens your browser&rsquo;s print dialogue — choose &ldquo;Save as PDF&rdquo;.
+          {t.footer.printHint}
         </p>
       </Reveal>
 
       <p className="footer__bottom">
-        &copy; 2026 Daniele Mancini. All rights reserved.
+        <span>{t.footer.rights}</span>
+        <button
+          type="button"
+          className="footer__privacy"
+          onClick={() => setPrivacyOpen(true)}
+          aria-haspopup="dialog"
+        >
+          {t.privacy.link}
+        </button>
       </p>
+
+      {privacyOpen ? <PrivacyDialog onClose={() => setPrivacyOpen(false)} /> : null}
     </footer>
   )
 }

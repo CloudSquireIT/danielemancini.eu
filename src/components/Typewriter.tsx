@@ -37,6 +37,12 @@ export default function Typewriter({ text }: TypewriterProps) {
     return () => observer.disconnect()
   }, [])
 
+  // A language switch swaps the sentence: start it over rather than keep a
+  // character count that belongs to the previous one.
+  useEffect(() => {
+    setCount(0)
+  }, [text])
+
   useEffect(() => {
     if (reducedMotion) {
       setCount(text.length)
