@@ -2372,6 +2372,49 @@ button {
   }
 }
 
+/* 320px phones: the pill spans the width and the six icons share whatever the
+   language control leaves, so the row never scrolls. Each link is ~39px wide
+   here - below the 44px ideal, but the only way to keep six icons and the
+   slider on one line at this width. Placed after the dock query so it wins the
+   padding cascade. */
+@media (max-width: 360px) {
+  .nav {
+    padding-inline: 6px;
+  }
+
+  .nav__pill {
+    width: 100%;
+    gap: 2px;
+    padding: 4px;
+  }
+
+  .nav__list {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .nav__link {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0 2px;
+  }
+
+  .langswitch__btn {
+    gap: 2px;
+    padding: 0 5px 0 3px;
+  }
+
+  .langswitch__code {
+    min-width: 1.05em;
+  }
+
+  .langswitch__caret {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+
 /* Shorter phones (SE, Duo folded, iPhone 8) need the bar but cannot spare a
    whole card's height for it. The reservation follows from --nav-clear-base, so
    it needs no copy of the dock condition; only the type below repeats it, and a

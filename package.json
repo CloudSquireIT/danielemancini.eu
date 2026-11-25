@@ -1,15 +1,16 @@
 {
   "name": "danielemancini-cv",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "Daniele Mancini \u2014 CV site (Apple-inspired), React + TypeScript",
   "scripts": {
     "dev": "vite",
     "typecheck": "tsc -b",
     "build": "tsc -b && vite build",
+    "build:web": "tsc -b && vite build --mode web",
     "build:single": "tsc -b && vite build --mode single",
-    "release": "bun run build && bun run build:single && bun scripts/package.mjs",
+    "release": "bun run build:web && bun run build:single && bun scripts/package.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
